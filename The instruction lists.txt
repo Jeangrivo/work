@@ -1,0 +1,259 @@
+
+library('readxl')#Importation du package permettant l'importation de la base
+setwd(choose.dir()) #Choisir le répertoire de travail
+data=read_xlsx('ma base 2.xlsx') #Importation de la base de données
+datas=data 
+data=datas[,2:11]  #On retire la colonne contenant le nom des pays
+attach(data) #Attacher le nom des variables 
+# faire le nuage de points pour chaque chaque variable
+plot(idh~rnbparhab) # changer la variable
+#fin
+
+#Stat Univariée
+summary(data)
+apply(data,MARGIN=2,FUN=sd)# écart-type pour toutes les variables
+
+sum(0.7<=idh & idh<=0.799)*100/49 # voir les pourcentages
+sum(idh<=0.55)*100/49
+sum(idh<=0.55 & idh<=0.699)*100/49
+
+#Stat bivariée
+
+par(mfrow=c(2,5))
+boxplot(idh, xlab="idh",col="orange")
+boxplot(rnbparhab, xlab="rnbparhab",col="orange")
+boxplot(med,xlab="medecin",col="orange")
+boxplot(ide,xlab="ide",col="orange")
+boxplot(chomage,xlab="chomage",col="orange")
+boxplot(depensante,xlab="dep santé",col="orange")
+boxplot(accelec,xlab="acces electricite",col="orange")
+boxplot(utilinter,xlab="utilisateurs internet",col="orange")
+boxplot(durattsco,xlab="durattsco",col="orange")
+boxplot(durmoysco,xlab="durmoysco",col="orange")
+dev.off()
+#valeurs abbérates AVEC BOXPLOT : Faire pour toutes les variables
+resultat <- boxplot(datas[,"idh"],xlab="idh",col="red")
+valaberrante <- resultat$out
+valaberrante
+val=which(idh%in%valaberrante)
+for(i in val){text(x=1,y=idh[i],labels=pays[i],pos=c(3,3),offset = 0.1)}
+
+resultat <- boxplot(datas[,"ide"],xlab="ide",col="red")
+valaberrante <- resultat$out
+valaberrante
+val=which(ide%in%valaberrante)
+for(i in val){text(x=1,y=ide[i],labels=datas$pays[i],pos=c(3,3),offset = 0.1)}#Affiche les pays abérrants sur le boxplot
+
+resultat <- boxplot(datas[,"accelec"],xlab="accès elec",col="red")
+valaberrante <- resultat$out
+valaberrante
+val=which(accelec%in%valaberrante)
+for(i in val){text(x=1,y=accelec[i],labels=datas$pays[i],pos=c(3,3),offset = 0.1)}
+
+resultat <- boxplot(datas[,"durmoysco"],xlab="durmoysco",col="red")
+valaberrante <- resultat$out
+valaberrante # recupère les indices des valeurs abérrantes 
+val=which(durmoysco%in%valaberrante)
+for(i in val){text(x=1,y=durmoysco[i],labels=datas$pays[i],pos=c(3,3),offset = 0.1)}
+#
+#pays dépassant la moyenne d'une caractéristique
+# faire la meme chose pour toutes les variables
+sum(idh>mean(idh))
+datas[idh>mean(idh),]
+datas[which.max(idh),]
+median(idh)
+#fin
+
+#fin valeurs abérrantes
+#mininum
+sd(utilinter)
+mean(ide)
+max(accelec)
+min(accelec)
+which.max(idh)
+datas[which.max(chomage),]# pays ayant le chomage maximal
+datas[which.min(idh),]
+max(utilinter)
+min(utilinter)
+mean(rnbparhab)
+datas[med>mean(med),]
+
+abline(h=mean(idh),col="green")
+#fin minimum
+quantile(idh,prob=0.75)
+
+qnorm(0.95)*sd(chomage)
+sd(datas$durmoysco)
+
+#FIN stat univariée
+
+#Début de la modélisation
+regression=lm(idh~.,data=data)
+summary(regression)
+anova(regression)
+coef(regression) # Les coefficients de régression estimés
+
+# Modèle pour une variable ( faire pour chaque variable)
+regressionT=lm(idh~accelec,data=data)
+summary(regressionT)
+
+pairs(idh~.,data=data,main="Simple Scatterplot Matrix",col="red")
+cor(data,method ="pearson")
+
+library(MASS)
+library(ppcor) # Package à télécharger
+pcor(data,method ="pearson")#corrélations
+
+library(corrplot)
+corrplot(cor(data),method = "number")#corrélations partielles
+
+#validation
+
+#hypotheses H1
+r=rstudent(regression)
+residus=residuals(regression) # Résidus du modèle
+y.pred=predict(regression) # Variable prédite
+plot(y.pred,residus) # Graphique 2 : résidus vs predite
+abline(h = c(-2,0,2),lty=c(2,1,2), col = "red")
+val=which(r%in%r) #numéros des Afficher les pays abérants
+for(i in val){text(x=y.pred[i],y=r[i],labels=datas$pays[i],pos=c(3,3),offset = 0.1)}
+plot(regression,1) # Graphique 2 : résidus vs predite
+
+#hypotheses H2
+
+wilcox.test(residus,mu=0) # Test des rangs signés de Wilcoxon 
+t.test(residus,mu=0) # Test de Student 
+
+#Hypotheses H3
+plot(regression,1) # Graphique résidus vs predite
+plot(regression,3) # Graphique racine carrée des résidus vs predite
+library(zoo)
+library(lmtest) # Charger ce package pour le test de Breush Pagan
+bptest(regression) # Test de de Breush Pagan 
+
+library(carData)
+library(car) # Charger ce package pour le test de Breush Pagan
+ncvTest(regression) # Test de de Breush Pagan  
+
+library(lmtest) # Charger ce package pour le test de Goldfeld-Quandt
+gqtest(regression) # Test de Goldfeld-Quandt 
+
+# vérification de l'hypothèse d'indépendance des erreurs H4
+
+#Vérification de l'hypothèse de la normalité des erreurs H5
+library(moments) # Package à charger
+skewness(residus) # Coefficient d'asymétrie 
+kurtosis(residus) # Coefficient d'aplatissement 
+
+hist(residus,col="yellow",freq=F) # Histogramme des résidus
+densite=density(residus) # Estimation de la densité des résidus
+lines(densite,col="red",lwd=3) # Superposition de densité à l'histogramme
+
+qqnorm(residus) # Q-Q plot
+qqline(residus,col="red") # Droite d'Henry
+
+plot(regression,3) # Autre commande pour le Q-Q plot
+
+library(nortest) # Package nortest à charger
+lillie.test (residus) # Test de Lilliefors 
+install.packages("tseries")
+install.packages("xts")
+library(xts)
+library(tseries) # Package tseries à charger
+jarque.bera.test(residus)
+shapiro.test(residus) # Test de Shapiro-Wilks 
+
+#Détection des données anormales
+library(carData)
+library(car) # Package à charger
+influenceIndexPlot(regression)# pays influnents
+# détection des pays influents avec les résidus
+res.stud <- rstudent(regression) # Calcul des résidus studentisés
+seuil.stud <- qt(0.975,49-9-2) # Calcul du seuil par la loi de Student
+cond <- res.stud<(-seuil.stud) | res.stud > (seuil.stud)
+id.student <- datas$pays[cond]
+id.student
+which(cond)
+# fin de détection
+
+library (stats) # Package à charger
+influence.measures(regression) # Calcul des statistiques d'influence
+summary(influence.measures(regression))
+plot(regression,5)
+
+#distance de cook
+plot(cooks.distance(regression),type="h")
+abline(h=1)
+#fin distance de cook
+# détection des pays influents avec la matrice chapeau
+levier <- hat(model.matrix(regression))
+seuil.levier <- 2*(9+1)/49
+atyp.levier <- datas$pays[levier>seuil.levier] # Liste des individus qui ont un levier important
+atyp.levier
+which(levier>seuil.levier)
+#fin de détection
+
+#deffit
+seuil.dffit <- 2*sqrt((9+1)/49)
+datas$pays[abs(dffits(regression))>=seuil.dffit]
+which(abs(dffits(regression))>=seuil.dffit)
+#fin deffit
+
+#FIN
+
+#DFBETAS
+seuil.dfbeta <- 2/sqrt(49)
+datas$pays[apply(abs(dfbetas(regression))>seuil.dfbeta,FUN=any,MARGIN=1)]
+which(apply(abs(dfbetas(regression))>seuil.dfbeta,FUN=any,MARGIN=1))
+#FIN
+
+#On enlève les valeurs influentes
+# On enlève d'abord une observation ensuite le groupe
+regressionT=lm(idh~.,data[-c(24,25,44),])#Rstudent
+summary(regressionT)
+compareCoefs(regression,regressionT)
+
+compareCoefs(regression,regressionT)
+summary(regression3)
+regression3=lm(idh~.,data[-c(12,30,41,42),])#hat
+
+compareCoefs(regression,regression3)
+
+regression4=lm(idh~.,data[-c(12,13,25,24,30,41),])#deffit
+summary(regression4)
+compareCoefs(regression,regression4)
+
+#
+#Détection de la multicolinéarité
+library(carData)
+library(car)
+vif(regression)
+#choix des variables
+step.forward=step(regression,direction = "forward")
+step.backward=step(regression,direction = "backward")
+step.both=step(regression,direction = "both")
+
+library(leaps) 
+choix=regsubsets(idh~.,data=data,nbest = 1)
+choix.summary=summary(choix)
+plot(choix,scale = "bic")
+plot(choix,scale = "Cp")
+plot(choix,scale = "r2")
+plot(choix,scale = "adjr2")
+
+#
+max.adjr2=which.max(choix.summary$adjr2)
+min.bic=which.min(choix.summary$bic)
+min.cp=which.min(choix.summary$cp)
+
+names(which(choix.summary$which[max.adjr2,]==TRUE))
+names(which(choix.summary$which[min.cp,]==TRUE))
+names(which(choix.summary$which[min.bic,]==TRUE))
+#
+
+pairs(idh~rnbparhab+durattsco+durmoysco+accelec,data=data,col="red")
+
+# Faire pour chaque variable qualitative avec l'avoir introduite dans la base
+regression4=lm(idh~durattsco+durmoysco+accelec+rnbparhab+securite,data=data)
+summary(regression4)
+compareCoefs(regression,regression4)

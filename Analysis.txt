@@ -1,0 +1,10 @@
+ABSTRACT
+The purpose of this study is to identify the determinants of human development in an African country in 2017. 
+We use the UNDP HDI to measure this level of development. 
+Based on the work of Klugman (2011), Arcelus, Sharma and Srinivasan (2005),
+we first regressed the HDI on 9 exogenous indicators; to retain only 4 in the end 
+Gross national income, access to electricity, average length of schooling and expected length of schooling). 
+Our model explains 91% of the variability in the level of human development in these countries. 
+However, it is observed that the HDI increase due to an increase in the average length of schooling is the 
+same in countries having experienced armed conflict or not. Also, the fact that a country has the CFA franc as 
+its currency or that it is a member of CEMAC does not enrich the model.

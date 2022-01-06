@@ -1,0 +1,16 @@
+LITERATURE REVIEW AND CHOICE OF VARIABLES
+
+Since 1990, the HDI has been chosen by the UNDP to capture human development. We therefore retain the HDI
+(idh) as the variable of interest.
+Note also that the HDI is in the form of a number between 0 (terrible) to 1 (excellent). It allows
+a categorization of countries into four classes, those said to have very high human development (𝐼𝐷𝐻> 0.8), those said to have high human development (0.7 ≪ 𝐼𝐷𝐻 ≪ 0.799), those said to have medium human development (0.55 ≪)
+𝐼𝐷𝐻 ≪ 0.699) and lastly countries with low human development (𝐼𝐷𝐻 <0.550) 2
+.
+Based on the work of Klugman as well as some researchers, since 2011 the HDI has been calculated by integrating three
+dimensions, in this case, the health of the population that we capture by the number of doctors per 1000
+inhabitants (med) and health expenditure (expenditure); education, captured by the average length of schooling
+(durmoysco) and the expected duration of schooling (durattensco); and the standard of living, captured by the national income
+gross per capita (rnbparhab). In addition, the work of Arcelus Sharma and Srinivasan (2005) highlights
+variables such as foreign direct investment (FDI), access to electricity (accelec), internet access
+(utilinter). Finally, we added the unemployment rate (unemployment) intuitively and given the context
+African.
